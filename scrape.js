@@ -1,30 +1,36 @@
 const scraper = require('website-scraper');
+const PuppeteerPlugin = require('website-scraper-puppeteer');
 const fs = require('fs');
 const path = require('path');
 
 const scrape = scraper.default || scraper;
 const dir = path.join(__dirname, 'public');
 
-// 1. 核心修复：如果目录存在，先递归删除它，确保爬虫面对的是一张白纸
 if (fs.existsSync(dir)) {
-    console.log("清理旧的 public 目录...");
     fs.rmSync(dir, { recursive: true, force: true });
 }
 
-// 2. 配置爬虫
 const options = {
   urls: ['https://community.solar.huawei.com/ie/index.html'],
   directory: dir,
-  recursive: false, // 第一次建议保持 false，确保主页通了再开递归
-  requestConcurrency: 3,
+  plugins: [
+    new PuppeteerPlugin({
+      launchOptions: { 
+        headless: true,
+        args: ['--no-sandbox', '--disable-setuid-sandbox'] // Vercel 环境必须加这两行
+      }, 
+      scrollToBottom: true, // 自动滚到底部，触发懒加载图片
+      checkLoadedSelector: '.header', // 确保这个 CSS 选择器出现了才算加载完
+    })
+  ],
+  recursive: false,
+  requestConcurrency: 1
 };
 
-// 3. 执行抓取
-console.log("正在重新抓取华为官网...");
-scrape(options).then((result) => {
-  console.log("🎉 抓取成功！文件已保存至 public。");
+console.log("正在使用模拟浏览器抓取动态内容...");
+scrape(options).then(() => {
+  console.log("🎉 动态页面抓取成功！");
 }).catch((err) => {
-  // 如果还是报错，打印更详细的信息
-  console.error("❌ 抓取过程中出错:", err.message);
+  console.error("❌ 报错:", err.message);
   process.exit(1);
 });

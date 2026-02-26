@@ -5,6 +5,7 @@
     "build": "node scrape.js"
   },
   "dependencies": {
-    "website-scraper": "^5.3.1"
+    "website-scraper": "^5.3.1",
+    "website-scraper-puppeteer": "^1.0.3"
   }
 }
