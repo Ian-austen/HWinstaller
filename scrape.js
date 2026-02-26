@@ -1,5 +1,8 @@
 const scraper = require('website-scraper');
-const PuppeteerPlugin = require('website-scraper-puppeteer');
+// 重点：尝试两种可能的导入路径
+const PuppeteerPluginModule = require('website-scraper-puppeteer');
+const PuppeteerPlugin = PuppeteerPluginModule.default || PuppeteerPluginModule;
+
 const fs = require('fs');
 const path = require('path');
 
@@ -16,21 +19,20 @@ const options = {
   plugins: [
     new PuppeteerPlugin({
       launchOptions: { 
-        headless: true,
-        args: ['--no-sandbox', '--disable-setuid-sandbox'] // Vercel 环境必须加这两行
-      }, 
-      scrollToBottom: true, // 自动滚到底部，触发懒加载图片
-      checkLoadedSelector: '.header', // 确保这个 CSS 选择器出现了才算加载完
+        headless: "new", // 适配新版 Puppeteer
+        args: ['--no-sandbox', '--disable-setuid-sandbox'] 
+      },
+      scrollToBottom: true
     })
   ],
   recursive: false,
   requestConcurrency: 1
 };
 
-console.log("正在使用模拟浏览器抓取动态内容...");
+console.log("正在尝试启动浏览器进行渲染抓取...");
 scrape(options).then(() => {
-  console.log("🎉 动态页面抓取成功！");
+  console.log("🎉 抓取成功！");
 }).catch((err) => {
-  console.error("❌ 报错:", err.message);
+  console.error("❌ 抓取失败，错误详情:", err.message);
   process.exit(1);
 });
