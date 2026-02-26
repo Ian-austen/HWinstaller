@@ -1,0 +1,10 @@
+{
+  "name": "huawei-solar-clone",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "node scrape.js"
+  },
+  "dependencies": {
+    "website-scraper": "^5.3.1"
+  }
+}
